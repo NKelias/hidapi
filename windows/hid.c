@@ -228,7 +228,7 @@ static int lookup_functions()
 static HANDLE open_device(const char *path, BOOL enumerate)
 {
 	HANDLE handle;
-	DWORD desired_access = 0; /* (enumerate)? 0: (GENERIC_WRITE | GENERIC_READ); */
+	DWORD desired_access = 0; //(GENERIC_WRITE | GENERIC_READ);
 	DWORD share_mode = FILE_SHARE_READ|FILE_SHARE_WRITE;
 
 	handle = CreateFileA(path,
@@ -358,6 +358,8 @@ struct hid_device_info HID_API_EXPORT * HID_API_CALL hid_enumerate(unsigned shor
 			if (!res)
 				goto cont;
 
+			// Print out all found device handles:
+			printf(L"HandleName: %s\n", device_interface_detail_data->DevicePath);
 			if (strcmp(driver_name, "HIDClass") == 0 || strcmp(driver_name, "Keyboard") == 0) {
 				/* See if there's a driver bound. */
 				res = SetupDiGetDeviceRegistryPropertyA(device_info_set, &devinfo_data,
@@ -367,12 +369,11 @@ struct hid_device_info HID_API_EXPORT * HID_API_CALL hid_enumerate(unsigned shor
 			}
 		}
 
-		//wprintf(L"HandleName: %s\n", device_interface_detail_data->DevicePath);
 		/* Open a device handle, but check if path ends with "\kbd" first and remove if present (needed for Windows 1809)*/
 		char* path_extension = device_interface_detail_data->DevicePath + strlen(device_interface_detail_data->DevicePath) - strlen("\\kbd");
-		if(strcmp(path_extension, "\\kbd") == 0) {
-			memset(path_extension, 0, strlen("\\kbd"));
-		}
+		/* if(strcmp(path_extension, "\\kbd") == 0) {*/
+            /* memset(path_extension, 0, strlen("\\kbd"));*/
+		/* }*/
 		write_handle = open_device(device_interface_detail_data->DevicePath, TRUE);
 
 		/* Check validity of write_handle. */
